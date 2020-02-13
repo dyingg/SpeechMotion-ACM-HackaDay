@@ -278,9 +278,10 @@ const App = () => {
         </View>
         <WebView
           source={{
-            uri:
-              'http://192.168.0.100:8080/examples/webgl_loader_fbx.html?lolxx',
+            uri: 'http://localhost:8080/webgl_loader_fbx.html?lolxx',
+             
           }}
+
           style={{
             flex: 1,
           }}
