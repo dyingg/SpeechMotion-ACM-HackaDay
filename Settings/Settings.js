@@ -7,6 +7,9 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Surface, Switch, Title} from 'react-native-paper';
 import {Text,Headline, DefaultTheme} from 'react-native-paper';
 
+
+
+
 const SettingsRoute = () => {
 	const [micEnabled, uMic] = useState(true);
 	const [camEnabled, uCam] = useState(true);

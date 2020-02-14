@@ -10,7 +10,6 @@ import React, {useEffect, useState, useRef} from 'react';
 
 import SafeAreaView from 'react-native-safe-area-view';
 
-
 import Orientation from 'react-native-orientation';
 
 import * as Speech from 'expo-speech';
@@ -26,6 +25,8 @@ import Voice from 'react-native-voice';
 
 import {WebView} from 'react-native-webview';
 
+import Model from './Model/Model.js';
+
 import {
   Appbar,
   DarkTheme,
@@ -39,8 +40,7 @@ import {
   TouchableRipple,
 } from 'react-native-paper';
 
-
-import { RNCamera } from 'react-native-camera';
+import {RNCamera} from 'react-native-camera';
 
 import {
   BottomNavigation,
@@ -53,8 +53,7 @@ import {
 const HomeRoute = props => {
   let camera = useRef(undefined);
 
-  const [speechInput, updateSpeechInput] = useState("");
-
+  const [speechInput, updateSpeechInput] = useState('');
 
   return (
     <Surface style={{flex: 1}}>
@@ -75,35 +74,30 @@ const HomeRoute = props => {
                 marginRight: 15,
               }}></Icon>
             <Button
-              icon={props.listening? "microphone" : "cellphone-sound"}
+              icon={props.listening ? 'microphone' : 'cellphone-sound'}
               mode="contained"
               onPress={() => {
-              if (!props.listening) {
-                props.start();
-              }
-            }}>{props.listening ? "Listening" :
-              "Listen"
-            }</Button>
+                if (!props.listening) {
+                  props.start();
+                }
+              }}>
+              {props.listening ? 'Listening' : 'Listen'}
+            </Button>
           </View>
 
-          <Text style={styles.speechContent}>
-            {props.speech}
-          </Text>
+          <Text style={styles.speechContent}>{props.speech}</Text>
           <TextInput
             label="Text to Speech"
             value={speechInput}
-            
             onBlur={() => {
               Speech.speak(speechInput);
               // if (speechInput[speechInput.length - 1] != " ") {
               //   const word = speechInput.split(' ');
               //   Speech.speak(word.pop());
               // }
-              
             }}
-
             onFocus={() => {
-              updateSpeechInput("");
+              updateSpeechInput('');
             }}
             style={styles.speechInput}
             onChangeText={text => {
@@ -113,27 +107,7 @@ const HomeRoute = props => {
           />
         </View>
         <View style={styles.prevcontainer}>
-          {props.index == 0?
-            <RNCamera
-              ref={ref => {
-                camera = ref;
-              }}
-              style={styles.preview}
-              type={RNCamera.Constants.Type.front}
-              androidCameraPermissionOptions={{
-                title: 'Permission to use camera',
-                message: 'We need your permission to use your camera',
-                buttonPositive: 'Ok',
-                buttonNegative: 'Cancel',
-              }}
-              androidRecordAudioPermissionOptions={{
-                title: 'Permission to use audio recording',
-                message: 'We need your permission to use your audio',
-                buttonPositive: 'Ok',
-                buttonNegative: 'Cancel',
-              }}
-              captureAudio={false}
-            /> : <></>}
+          
         </View>
       </View>
     </Surface>
@@ -142,9 +116,9 @@ const HomeRoute = props => {
 
 const styles = StyleSheet.create({
   speechInput: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 10,
-    left:0,
+    left: 0,
     width: 200,
   },
 
@@ -164,13 +138,8 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     backgroundColor: 'black',
   },
-  preview: {
-    flex: 1,
-  
-  },
   prevcontainer: {
     flex: 1,
-    
   },
   capture: {
     flex: 0,
@@ -184,22 +153,24 @@ const styles = StyleSheet.create({
 });
 
 const App = () => {
-
-  const [SActorSpeech, updateSActorSpeech] = useState("Sentences will appear here in realtime.");
+  let camera = useRef(undefined);
+  const [SActorSpeech, updateSActorSpeech] = useState(
+    'Sentences will appear here in realtime.',
+  );
   const [listening, updateListening] = useState(false);
 
-  const onSpeechResults = ({ value }) => {
-    updateSActorSpeech(value[0])
-  }
-  
-  const onSpeechEnd = (args) => {
-    updateListening(false);
-  }
+  const onSpeechResults = ({value}) => {
+    updateSActorSpeech(value[0]);
+  };
 
-  const onSpeechErrror = (args) => {
-    console.log("ERROR")
+  const onSpeechEnd = args => {
+    updateListening(false);
+  };
+
+  const onSpeechErrror = args => {
+    console.log('ERROR');
     console.log(args);
-  }
+  };
 
   const startListening = async () => {
     try {
@@ -207,21 +178,20 @@ const App = () => {
       updateListening(true);
     } catch (e) {
       console.log(e);
-    } 
-  }
+    }
+  };
 
   // Voice.onSpeechPartialResults = onSpeechResults;
   Voice.onSpeechPartialResults = ({value}) => {
     updateSActorSpeech(value[0]);
-  }
+  };
   Voice.onSpeechResults = onSpeechResults;
   Voice.onSpeechEnd = onSpeechEnd;
   Voice.onSpeechErrror = onSpeechErrror;
 
-    useEffect(() => {
-      Orientation.lockToLandscapeLeft();
-      (async () => {
-      })();
+  useEffect(() => {
+    Orientation.lockToLandscapeLeft();
+    (async () => {})();
   }, []);
 
   const [bottomNav, uBottomNav] = useState({
@@ -255,11 +225,18 @@ const App = () => {
   const renderScene = ({route, jumpTo}) => {
     switch (route.key) {
       case 'home':
-        return <HomeRoute jumpTo={jumpTo} index={bottomNav.index} speech={SActorSpeech} listening={listening} start={startListening}/>;
+        return (
+          <HomeRoute
+            
+            speech={SActorSpeech}
+            listening={listening}
+            start={startListening}
+          />
+        );
       case 'albums':
-        return <ContextRoute jumpTo={jumpTo} />;
+        return <ContextRoute />;
       case 'settings':
-        return <SettingsRoute jumpTo={jumpTo} />;
+        return <SettingsRoute/>;
     }
   };
 
@@ -278,13 +255,36 @@ const App = () => {
         </View>
         <WebView
           source={{
-            uri: 'http://localhost:8080/webgl_loader_fbx.html?lolxx',
-             
+            // uri: 'http://localhost:8080/webgl_loader_fbx.html?lolxx',
+            "html": Model,
+            "baseUrl": 'file:///android_asset/web/'
           }}
 
+          originWhitelist= {['*']}
           style={{
             flex: 1,
           }}
+        />
+
+        <RNCamera
+          ref={ref => {
+            camera = ref;
+          }}
+          style={style.preview}
+          type={RNCamera.Constants.Type.front}
+          androidCameraPermissionOptions={{
+            title: 'Permission to use camera',
+            message: 'We need your permission to use your camera',
+            buttonPositive: 'Ok',
+            buttonNegative: 'Cancel',
+          }}
+          androidRecordAudioPermissionOptions={{
+            title: 'Permission to use audio recording',
+            message: 'We need your permission to use your audio',
+            buttonPositive: 'Ok',
+            buttonNegative: 'Cancel',
+          }}
+          captureAudio={false}
         />
       </View>
     </>
@@ -295,6 +295,13 @@ const style = StyleSheet.create({
   menu: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  preview: {
+    position: "absolute",
+    right: 90,
+    bottom: 0,
+    height: 120,
+    width: 120,
   },
 });
 
