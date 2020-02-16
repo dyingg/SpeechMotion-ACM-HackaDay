@@ -8,8 +8,6 @@
 
 import React, {useEffect, useState, useRef} from 'react';
 
-import SafeAreaView from 'react-native-safe-area-view';
-
 import Orientation from 'react-native-orientation';
 
 import * as Speech from 'expo-speech';
@@ -22,6 +20,8 @@ import ContextRoute from './Context/Context.js';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import Voice from 'react-native-voice';
+
+const apiHostname = '35.197.35.27:9090';
 
 import {WebView} from 'react-native-webview';
 
@@ -51,9 +51,10 @@ import {
 } from 'react-native-paper';
 
 const HomeRoute = props => {
-  let camera = useRef(undefined);
-
   const [speechInput, updateSpeechInput] = useState('');
+  // const [gestureInput, upateGestureInput] = useState(
+  //   'Gesture input will show here',
+  // );
 
   return (
     <Surface style={{flex: 1}}>
@@ -107,7 +108,46 @@ const HomeRoute = props => {
           />
         </View>
         <View style={styles.prevcontainer}>
-          
+          <Button onPress={props.takepic} style={{marginTop: 40}}>
+            {!props.capturing ? 'Capture Gesture' : 'Stop Capturing'}
+          </Button>
+          <Title style={{textAlign: 'center'}}>{props.gestureInput ? props.gestureInput : "Gestures will show here in real time"}</Title>
+          <View style={{marginTop: 20, alignItems: 'center'}}>
+            <Button
+              mode="contained"
+              style={{
+                width: 90,
+                marginBottom: 10,
+              }}
+              onPress={() => {
+                Speech.speak(props.gestureInput);
+              }}>
+              Recite
+            </Button>
+            <Button
+              mode="contained"
+              style={{
+                width: 90,
+                marginBottom: 10,
+              }}
+              onPress={() => {
+                props.upateGestureInput(props.gestureInput + '');
+              }}>
+              Space
+            </Button>
+
+            <Button
+              mode="contained"
+              style={{
+                width: 90,
+              }}
+              onPress={() => {
+                props.upateGestureInput(props.gestureInput.substr(0, props.gestureInput.length - 1));
+              }}
+              >
+              Delete
+            </Button>
+          </View>
         </View>
       </View>
     </Surface>
@@ -125,6 +165,7 @@ const styles = StyleSheet.create({
   speechContent: {
     paddingRight: 70,
     fontSize: 18,
+    textAlign: "center"
   },
   rightView: {
     flex: 2,
@@ -139,7 +180,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
   },
   prevcontainer: {
-    flex: 1,
+    flex: 3,
   },
   capture: {
     flex: 0,
@@ -153,16 +194,50 @@ const styles = StyleSheet.create({
 });
 
 const App = () => {
-  let camera = useRef(undefined);
+  let camera = useRef();
+  let webview = useRef();
+
   const [SActorSpeech, updateSActorSpeech] = useState(
     'Sentences will appear here in realtime.',
   );
+
+  const [gestureInput, updateGestureInput] = useState(
+    '',
+  );
+
   const [listening, updateListening] = useState(false);
 
   const onSpeechResults = ({value}) => {
     updateSActorSpeech(value[0]);
+    webview.current.injectJavaScript(`gucci("${value[0]}");`);
   };
 
+  const takePicture = async () => {
+    const data = await camera.current.takePictureAsync({
+      quality: 0.3,
+      base64: true,
+      width: 400,
+      mirrorImage: true,
+    });
+
+    const result = await fetch(`http://${apiHostname}/resource`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        user: "dyuti",
+        class: "test",
+        image: data.base64,
+      }),
+    });
+    const json = await result.json();
+    updateGestureInput(gestureInput + json.result);
+
+
+  };
+
+  //#region Voice
   const onSpeechEnd = args => {
     updateListening(false);
   };
@@ -189,6 +264,8 @@ const App = () => {
   Voice.onSpeechEnd = onSpeechEnd;
   Voice.onSpeechErrror = onSpeechErrror;
 
+  //#endregion
+  
   useEffect(() => {
     Orientation.lockToLandscapeLeft();
     (async () => {})();
@@ -222,21 +299,27 @@ const App = () => {
     uBottomNav(Object.assign({}, bottomNav, {index}));
   };
 
+  const __updateGestureInput = (value) => {
+    updateGestureInput(value);
+  }
+
   const renderScene = ({route, jumpTo}) => {
     switch (route.key) {
       case 'home':
         return (
           <HomeRoute
-            
             speech={SActorSpeech}
             listening={listening}
             start={startListening}
+            takepic={takePicture}
+            gestureInput={gestureInput}
+            upateGestureInput={__updateGestureInput}
           />
         );
       case 'albums':
         return <ContextRoute />;
       case 'settings':
-        return <SettingsRoute/>;
+        return <SettingsRoute />;
     }
   };
 
@@ -254,24 +337,24 @@ const App = () => {
           />
         </View>
         <WebView
+          ref={webview}
           source={{
             // uri: 'http://localhost:8080/webgl_loader_fbx.html?lolxx',
-            "html": Model,
-            "baseUrl": 'file:///android_asset/web/'
+            html: Model,
+            baseUrl: 'file:///android_asset/web/',
           }}
-
-          originWhitelist= {['*']}
+          mixedContentMode={'compatibility'}
+          javaScriptEnabledAndroid={true}
+          originWhitelist={['*']}
           style={{
             flex: 1,
           }}
         />
 
         <RNCamera
-          ref={ref => {
-            camera = ref;
-          }}
+          ref={camera}
           style={style.preview}
-          type={RNCamera.Constants.Type.front}
+          type={RNCamera.Constants.Type.back}
           androidCameraPermissionOptions={{
             title: 'Permission to use camera',
             message: 'We need your permission to use your camera',
@@ -297,7 +380,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
   preview: {
-    position: "absolute",
+    position: 'absolute',
     right: 90,
     bottom: 0,
     height: 120,

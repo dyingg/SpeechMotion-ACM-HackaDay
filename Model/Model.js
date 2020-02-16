@@ -8,12 +8,12 @@ export default `<!DOCTYPE html>
 
   <title>Webpack Boilerplate</title>
 
-<link rel="shortcut icon" href="./favicon.png"><link href="./0.css" rel="stylesheet"></head>
+<link rel="shortcut icon" href="/favicon.png"><link href="./0.css" rel="stylesheet"></head>
 
 <body>
 
   <div id="root"></div>
 
-<script type="text/javascript" src="./runtime.a7068de2ef9ee045a260.bundle.js"></script><script type="text/javascript" src="./main.89d5b4cb842400020c00.bundle.js"></script></body>
+<script type="text/javascript" src="./runtime.a7068de2ef9ee045a260.bundle.js"></script><script type="text/javascript" src="./main.e8bd3227c57486910513.bundle.js"></script></body>
 
-</html>`;
+</html>`

@@ -21,7 +21,8 @@
     "react-native-unimodules": "^0.7.0",
     "react-native-vector-icons": "^6.6.0",
     "react-native-voice": "^0.3.0",
-    "react-native-webview": "^8.0.6"
+    "react-native-webview": "^8.0.6",
+    "tflite-react-native": "0.0.5"
   },
   "devDependencies": {
     "@babel/core": "7.8.4",
