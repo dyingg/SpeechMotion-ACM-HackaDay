@@ -12,7 +12,7 @@
   "dependencies": {
     "expo-speech": "^8.0.0",
     "react": "16.9.0",
-    "react-native": "0.61.5",
+    "react-native": "0.62.3",
     "react-native-camera": "git+https://git@github.com/react-native-community/react-native-camera.git",
     "react-native-orientation": "^3.1.3",
     "react-native-paper": "^3.6.0",
